@@ -10,9 +10,6 @@ app.use(cors());
 app.use(express.json());
 app.set('json spaces', 2);
 
-app.get('/', (req, res) => {
-  const filePath = path.join(__dirname, 'README.md');
-
 app.get('/search', async (req, res) => {
   try {
     const { q } = req.query;
