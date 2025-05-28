@@ -10,11 +10,10 @@ app.use(cors());
 app.use(express.json());
 app.set('json spaces', 2);
 
-
 app.get('/search', async (req, res) => {
   try {
     const { q } = req.query;
-    
+
     if (!q) {
       return res.status(400).json({ error: 'Query parameter "q" is required' });
     }
@@ -22,7 +21,7 @@ app.get('/search', async (req, res) => {
     const searchUrl = `https://www.imdb.com/find/?q=${encodeURIComponent(q)}&s=tt`;
     const { data } = await axios.get(searchUrl, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        'User-Agent': 'Mozilla/5.0'
       }
     });
 
@@ -32,14 +31,17 @@ app.get('/search', async (req, res) => {
     $('.ipc-metadata-list-summary-item').each((i, element) => {
       const title = $(element).find('.ipc-metadata-list-summary-item__t').text().trim();
       const year = $(element).find('.ipc-metadata-list-summary-item__li').first().text().trim();
-      const id = $(element).find('a').attr('href')?.match(/title\/(tt\d+)\//)?.[1];
+      const href = $(element).find('a').attr('href');
+      const idMatch = href?.match(/title\/tt(\d+)\//);
       const poster = $(element).find('.ipc-image').attr('src');
+      const typeText = $(element).find('.ipc-metadata-list-summary-item__li').last().text().trim();
 
-      if (title && id) {
+      if (title && idMatch) {
         results.push({
-          id,
+          id: idMatch[1],
           title,
           year,
+          type: typeText || null,
           poster
         });
       }
@@ -50,7 +52,7 @@ app.get('/search', async (req, res) => {
     }
 
     const details = await getMovieDetails(results[0].id);
-    
+
     res.json({
       searchResults: results,
       details
@@ -62,11 +64,28 @@ app.get('/search', async (req, res) => {
   }
 });
 
+app.get('/getmoviedetails', async (req, res) => {
+  try {
+    const { id } = req.query;
+
+    if (!id) {
+      return res.status(400).json({ error: 'Query parameter "id" is required' });
+    }
+
+    const details = await getMovieDetails(id);
+    res.json(details);
+
+  } catch (error) {
+    console.error('Details Error:', error.message);
+    res.status(500).json({ error: 'Failed to fetch movie details' });
+  }
+});
+
 async function getMovieDetails(id) {
-  const url = `https://www.imdb.com/title/${id}/`;
+  const url = `https://www.imdb.com/title/tt${id}/`;
   const { data } = await axios.get(url, {
     headers: {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      'User-Agent': 'Mozilla/5.0'
     }
   });
 
@@ -77,7 +96,7 @@ async function getMovieDetails(id) {
     rating: $('[data-testid="hero-rating-bar__aggregate-rating__score"] span').first().text().trim(),
     description: $('[data-testid="plot"] span').first().text().trim(),
     duration: $('[data-testid="title-techspec_runtime"]').text().trim(),
-    genre: $('[data-testid="genres"]').text().trim().split('\n').map(g => g.trim()),
+    genre: $('[data-testid="genres"]').text().trim().split('\n').map(g => g.trim()).filter(Boolean),
     releaseDate: $('[data-testid="title-details-releasedate"] a').text().trim(),
     director: $('[data-testid="title-pc-principal-credit"]:contains("Director") a').text().trim(),
     cast: $('[data-testid="title-cast-item"]').map((i, el) => ({
