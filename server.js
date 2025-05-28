@@ -31,8 +31,19 @@ app.get('/search', async (req, res) => {
     $('.ipc-metadata-list-summary-item').each((i, element) => {
   const title = $(element).find('.ipc-metadata-list-summary-item__t').text().trim();
   const listItems = $(element).find('.ipc-metadata-list-summary-item__li');
-  const year = listItems.eq(0).text().trim();
-  const type = listItems.eq(1).text().trim();
+
+  let year = '';
+  let type = 'Unknown';
+
+  listItems.each((i, el) => {
+    const text = $(el).text().trim();
+    if (/^\d{4}/.test(text) && !year) {
+      year = text;
+    } else if (/(TV Series|TV Movie|Video|Short|Movie|Documentary|Mini-Series|Podcast|Game)/i.test(text)) {
+      type = text;
+    }
+  });
+
   const href = $(element).find('a').attr('href');
   const idMatch = href?.match(/title\/tt(\d+)\//);
   const poster = $(element).find('.ipc-image').attr('src');
