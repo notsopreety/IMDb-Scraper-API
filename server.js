@@ -29,33 +29,31 @@ app.get('/search', async (req, res) => {
     const results = [];
 
     $('.ipc-metadata-list-summary-item').each((i, element) => {
-      const title = $(element).find('.ipc-metadata-list-summary-item__t').text().trim();
-      const year = $(element).find('.ipc-metadata-list-summary-item__li').first().text().trim();
-      const href = $(element).find('a').attr('href');
-      const idMatch = href?.match(/title\/tt(\d+)\//);
-      const poster = $(element).find('.ipc-image').attr('src');
-      const typeText = $(element).find('.ipc-metadata-list-summary-item__li').last().text().trim();
+  const title = $(element).find('.ipc-metadata-list-summary-item__t').text().trim();
+  const listItems = $(element).find('.ipc-metadata-list-summary-item__li');
+  const year = listItems.eq(0).text().trim();
+  const type = listItems.eq(1).text().trim();
+  const href = $(element).find('a').attr('href');
+  const idMatch = href?.match(/title\/tt(\d+)\//);
+  const poster = $(element).find('.ipc-image').attr('src');
 
-      if (title && idMatch) {
-        results.push({
-          id: idMatch[1],
-          title,
-          year,
-          type: typeText || null,
-          poster
-        });
-      }
+  if (title && idMatch) {
+    results.push({
+      id: idMatch[1],
+      title,
+      year,
+      type,
+      poster
     });
+  }
+});
 
     if (results.length === 0) {
       return res.status(404).json({ error: 'No results found' });
     }
 
-    const details = await getMovieDetails(results[0].id);
-
     res.json({
       searchResults: results,
-      details
     });
 
   } catch (error) {
