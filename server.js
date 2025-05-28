@@ -7,6 +7,9 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
+app.use(express.json());
+app.set('json spaces', 2);
+
 
 app.get('/search', async (req, res) => {
   try {
