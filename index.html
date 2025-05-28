@@ -35,6 +35,7 @@
       border-left: 3px solid #0077cc;
       overflow-x: auto;
       font-size: 0.9rem;
+      position: relative;
     }
 
     code {
@@ -66,6 +67,28 @@
       height: 28px;
       margin-right: 6px;
       margin-bottom: 8px;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: #e1e1e1;
+      border: none;
+      border-radius: 4px;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .copy-btn:hover {
+      background: #d1d1d1;
+    }
+
+    .copy-btn.copied {
+      background: #4CAF50;
+      color: white;
     }
   </style>
 </head>
@@ -129,10 +152,10 @@
 }</code></pre>
 
     <h2>🚀 How to Run Locally</h2>
-    <pre><code>git clone https://github.com/milancodess/imdb-scraper-api.git
+    <pre><code id="git-clone-code">git clone https://github.com/milancodess/imdb-scraper-api.git
 cd imdb-scraper-api
 npm install
-node server.js</code></pre>
+node server.js</code><button class="copy-btn" onclick="copyToClipboard()">Copy</button></pre>
     <p>The server will start on <code>http://localhost:3000</code>.</p>
 
     <hr />
@@ -146,5 +169,20 @@ node server.js</code></pre>
       <img class="badge" src="https://img.shields.io/badge/IMDb-F5DE50?style=for-the-badge&logo=imdb&logoColor=black" alt="IMDb" />
     </p>
   </main>
+
+  <script>
+    function copyToClipboard() {
+      const code = document.getElementById('git-clone-code').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = document.querySelector('.copy-btn');
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    }
+  </script>
 </body>
 </html>
