@@ -2,6 +2,7 @@ const express = require('express');
 const axios = require('axios');
 const cheerio = require('cheerio');
 const cors = require('cors');
+const path = require("path");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,8 +11,9 @@ app.use(cors());
 app.use(express.json());
 app.set('json spaces', 2);
 
-app.get('/', (req, res) => {
-  const filePath = path.join(__dirname, 'index.html');
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
 
 app.get('/search', async (req, res) => {
   try {
