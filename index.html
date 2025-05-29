@@ -6,13 +6,36 @@
   <title>IMDb Scraper API</title>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg-color: #fff;
+      --text-color: #2a2a2a;
+      --code-bg: #f4f4f4;
+      --inline-code-bg: #f0f0f0;
+      --border-color: #ddd;
+      --accent-color: #0077cc;
+      --btn-bg: #e1e1e1;
+      --btn-hover: #d1d1d1;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #1a1a1a;
+      --text-color: #f0f0f0;
+      --code-bg: #2a2a2a;
+      --inline-code-bg: #333;
+      --border-color: #444;
+      --accent-color: #4dabf7;
+      --btn-bg: #333;
+      --btn-hover: #444;
+    }
+
     body {
       font-family: 'JetBrains Mono', monospace;
-      background-color: #fff;
-      color: #2a2a2a;
+      background-color: var(--bg-color);
+      color: var(--text-color);
       padding: 2rem;
       margin: 0;
       line-height: 1.7;
+      transition: background-color 0.3s, color 0.3s;
     }
 
     .container {
@@ -26,26 +49,28 @@
     }
 
     .brand {
-      color: black;
+      color: var(--text-color);
     }
 
     pre {
-      background: #f4f4f4;
+      background: var(--code-bg);
       padding: 1rem;
-      border-left: 3px solid #0077cc;
+      border-left: 3px solid var(--accent-color);
       overflow-x: auto;
       font-size: 0.9rem;
       position: relative;
+      transition: background-color 0.3s;
     }
 
     code {
-      background: #f0f0f0;
+      background: var(--inline-code-bg);
       padding: 2px 6px;
       border-radius: 4px;
+      transition: background-color 0.3s;
     }
 
     a {
-      color: blue;
+      color: var(--accent-color);
       text-decoration: none;
     }
 
@@ -55,8 +80,9 @@
 
     hr {
       border: none;
-      border-top: 1px solid #ddd;
+      border-top: 1px solid var(--border-color);
       margin: 2rem 0;
+      transition: border-color 0.3s;
     }
 
     ul {
@@ -73,22 +99,63 @@
       position: absolute;
       top: 0.5rem;
       right: 0.5rem;
-      background: #e1e1e1;
+      background: var(--btn-bg);
       border: none;
       border-radius: 4px;
       padding: 0.25rem 0.5rem;
       font-size: 0.75rem;
       cursor: pointer;
       font-family: 'JetBrains Mono', monospace;
+      color: var(--text-color);
+      transition: background-color 0.3s;
     }
 
     .copy-btn:hover {
-      background: #d1d1d1;
+      background: var(--btn-hover);
     }
 
     .copy-btn.copied {
       background: #4CAF50;
       color: white;
+    }
+
+    .theme-switcher {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--btn-bg);
+      border-radius: 50px;
+      padding: 5px;
+      display: flex;
+      gap: 5px;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .theme-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      color: var(--text-color);
+    }
+
+    .theme-btn.active {
+      background: var(--accent-color);
+      color: white;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 3rem;
+      color: var(--text-color);
+      opacity: 0.8;
+      font-size: 0.9rem;
     }
   </style>
 </head>
@@ -168,7 +235,17 @@ node server.js</code><button class="copy-btn" onclick="copyToClipboard()">Copy</
       <img class="badge" src="https://img.shields.io/badge/Cheerio-ff6600?style=for-the-badge&logo=cheerio&logoColor=white" alt="Cheerio" />
       <img class="badge" src="https://img.shields.io/badge/IMDb-F5DE50?style=for-the-badge&logo=imdb&logoColor=black" alt="IMDb" />
     </p>
+
+    <div class="footer">
+       Author: Milan Bhandari © <span id="year"></span>
+    </div>
   </main>
+
+  <div class="theme-switcher">
+    <button class="theme-btn active" data-theme="light" title="Light mode">☀️</button>
+    <button class="theme-btn" data-theme="dark" title="Dark mode">🌙</button>
+    <button class="theme-btn" data-theme="system" title="System preference">🖥️</button>
+  </div>
 
   <script>
     function copyToClipboard() {
@@ -182,6 +259,40 @@ node server.js</code><button class="copy-btn" onclick="copyToClipboard()">Copy</
           btn.classList.remove('copied');
         }, 2000);
       });
+    }
+    
+    const date = document.getElementById('year').textContent = new Date().getFullYear();
+    const themeButtons = document.querySelectorAll('.theme-btn');
+    const html = document.documentElement;
+    
+    const savedTheme = localStorage.getItem('theme') || 'system';
+    setTheme(savedTheme);
+
+    themeButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const theme = button.dataset.theme;
+        setTheme(theme);
+        localStorage.setItem('theme', theme);
+      });
+    });
+
+    function setTheme(theme) {
+      themeButtons.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.theme === theme);
+      });
+
+      if (theme === 'system') {
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        html.dataset.theme = systemPrefersDark ? 'dark' : 'light';
+        
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+          if (localStorage.getItem('theme') === 'system') {
+            html.dataset.theme = e.matches ? 'dark' : 'light';
+          }
+        });
+      } else {
+        html.dataset.theme = theme;
+      }
     }
   </script>
 </body>
