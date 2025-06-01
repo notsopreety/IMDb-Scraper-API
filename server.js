@@ -108,9 +108,10 @@ async function getMovieDetails(id) {
   return {
     title: $('h1').text().trim(),
     rating: $('[data-testid="hero-rating-bar__aggregate-rating__score"] span').first().text().trim(),
-    description: $('[data-testid="plot"] span').first().text().trim(),
-    duration: $('[data-testid="title-techspec_runtime"]').text().trim(),
-    genre: $('[data-testid="genres"]').text().trim().split('\n').map(g => g.trim()).filter(Boolean),
+    totalRatings: $('[class*="sc-d541859f-3"]').first().text().trim(),
+    description: $('[data-testid="plot-xs_to_m"]').text().trim().replace('Read all', '').trim(),
+    duration: $('[data-testid="title-techspec_runtime"]').text().trim().replace('Runtime', '').trim(),
+    genre: $('.ipc-chip--on-baseAlt .ipc-chip__text').map((i, el) => $(el).text().trim()).get(),
     releaseDate: $('[data-testid="title-details-releasedate"] a').text().trim(),
     director: $('[data-testid="title-pc-principal-credit"]:contains("Director") a').text().trim(),
     cast: $('[data-testid="title-cast-item"]').map((i, el) => ({
