@@ -4,6 +4,7 @@
   "description": "A simple Express API to search and fetch IMDb movie details using scraping.",
   "main": "server.js",
   "scripts": {
+    "dev": "nodemon server.js",
     "start": "node server.js"
   },
   "keywords": [
@@ -21,6 +22,7 @@
     "cheerio": "^1.0.0-rc.12",
     "cors": "^2.8.5",
     "express": "^4.18.2",
-    "path":"^0.12.7"
+    "nodemon": "^3.1.10",
+    "path": "^0.12.7"
   }
 }
